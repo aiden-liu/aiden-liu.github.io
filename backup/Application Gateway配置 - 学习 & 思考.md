@@ -2,3 +2,21 @@
 
 ### 什么是Application Gateway
 在[官方文档](https://learn.microsoft.com/en-us/azure/application-gateway/overview)已经有很详尽的解释和介绍，大体上来说是个负载均衡的角色， 但是和传统意义上的负载均衡不同的是它是在应用层发挥作用的，可以按照规则对不同的URI地址进行路由。
+
+### 怎么配置Application Gateway
+由于这此的任务只是为新的backend（stv2 APIM）配置AppGW，许多原有的配置是不需要改动的，比如：
+
+- Frondend IP configuration：已经配置了public和 private IPs，如果没有特别要求，后续新增配置可以复用现成的。
+
+Azure Portal端的配置包括：
+
+- Backend pools
+- Backend settings
+- Listeners （Listener & Listener TLS certificates）
+- Rules
+- Rewrites
+- Health probes
+
+其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置：
+
+1. 

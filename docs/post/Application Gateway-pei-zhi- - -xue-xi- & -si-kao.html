@@ -75,7 +75,25 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     <div id="content">
 <div class="markdown-body" id="postBody"><p>最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及其他的引申思考。</p>
 <h3>什么是Application Gateway</h3>
-<p>在<a href="https://learn.microsoft.com/en-us/azure/application-gateway/overview" rel="nofollow">官方文档</a>已经有很详尽的解释和介绍，大体上来说是个负载均衡的角色， 但是和传统意义上的负载均衡不同的是它是在应用层发挥作用的，可以按照规则对不同的URI地址进行路由。</p></div>
+<p>在<a href="https://learn.microsoft.com/en-us/azure/application-gateway/overview" rel="nofollow">官方文档</a>已经有很详尽的解释和介绍，大体上来说是个负载均衡的角色， 但是和传统意义上的负载均衡不同的是它是在应用层发挥作用的，可以按照规则对不同的URI地址进行路由。</p>
+<h3>怎么配置Application Gateway</h3>
+<p>由于这此的任务只是为新的backend（stv2 APIM）配置AppGW，许多原有的配置是不需要改动的，比如：</p>
+<ul>
+<li>Frondend IP configuration：已经配置了public和 private IPs，如果没有特别要求，后续新增配置可以复用现成的。</li>
+</ul>
+<p>Azure Portal端的配置包括：</p>
+<ul>
+<li>Backend pools</li>
+<li>Backend settings</li>
+<li>Listeners （Listener &amp; Listener TLS certificates）</li>
+<li>Rules</li>
+<li>Rewrites</li>
+<li>Health probes</li>
+</ul>
+<p>其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置：</p>
+<ol>
+<li></li>
+</ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
