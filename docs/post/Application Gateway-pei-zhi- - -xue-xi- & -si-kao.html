@@ -92,7 +92,29 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </ul>
 <p>其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置：</p>
 <ol>
-<li></li>
+<li>
+<p>Backend pool:<br>
+A backend pool is a collection of resources to which your application gateway can send traffic. A backend pool can contain virtual machines, virtual machines scale sets, IP addresses, domain names, or an App Service. 这里配置的是APIM的custom domain。<br>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f"><img src="https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f" alt="image" style="max-width: 100%;"></a></p>
+</li>
+<li>
+<p>Health probes:</p>
+</li>
+<li>
+<p>Backend settings:</p>
+</li>
+<li>
+<p>Listener TLS certificates</p>
+</li>
+<li>
+<p>Listener</p>
+</li>
+<li>
+<p>Rules</p>
+</li>
+<li>
+<p>Rewrite</p>
+</li>
 </ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 

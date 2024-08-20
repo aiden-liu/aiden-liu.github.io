@@ -19,4 +19,14 @@ Azure Portal端的配置包括：
 
 其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置：
 
-1. 
+1. Backend pool:
+    A backend pool is a collection of resources to which your application gateway can send traffic. A backend pool can contain virtual machines, virtual machines scale sets, IP addresses, domain names, or an App Service. 这里配置的是APIM的custom domain。
+![image](https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f)
+
+1. Health probes:
+1. Backend settings:
+1. Listener TLS certificates
+1. Listener
+1. Rules
+1. Rewrite
+
