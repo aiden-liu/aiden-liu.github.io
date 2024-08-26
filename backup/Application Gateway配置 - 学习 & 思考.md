@@ -24,7 +24,7 @@ Azure Portal端的配置包括：
 1. Backend pool:
     A backend pool is a collection of resources to which your application gateway can send traffic. A backend pool can contain virtual machines, virtual machines scale sets, IP addresses, domain names, or an App Service. 这里配置的是APIM的custom domain。
 
-![image](https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f)
+    ![image](https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f)
 
 2. Health probes:
    Like all load balancers, there are health probes configured and monitoring backends' health status, and route traffic only to those that are healthy. Here need to create health probes, and save without verifying, as no backend settings being configured yet.
