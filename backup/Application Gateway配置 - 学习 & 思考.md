@@ -17,7 +17,8 @@ Azure Portal端的配置包括：
 - Rewrites
 - Health probes
 
-其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置：
+其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置, 整体关系如图所示：
+<img src="https://github.com/user-attachments/assets/f79b751d-7684-4353-8c45-606dfccb7a2c" height="600">
 
 1. Backend pool:
     A backend pool is a collection of resources to which your application gateway can send traffic. A backend pool can contain virtual machines, virtual machines scale sets, IP addresses, domain names, or an App Service. 这里配置的是APIM的custom domain。
@@ -28,7 +29,7 @@ Azure Portal端的配置包括：
    On the 'Path', service like APIM has default health check endpoint as '/status-0123456789abcdef', other services like [App Service](https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check?tabs=python) or VMs, they can have custom health probe configured. <img src="https://github.com/user-attachments/assets/1acf904c-068e-4bf5-b8ae-eefb27acd0d0" height="600">
 
 1. Backend settings:
-    
+    Configures backend protocol (http/https), port, cookie, connection draining, timeout, and probe association. Once here is linked to a probe created in above, the probe page will also show the link to this backend settings, it's both direction showing.
    
 1. Listener TLS certificates
 1. Listener
