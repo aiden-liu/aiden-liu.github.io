@@ -18,21 +18,32 @@ Azure Portal端的配置包括：
 - Health probes
 
 其中很多配置之间彼此存在依赖或关联关系，例如：Rules的配置需要Backend pool，Listener和Backend setting，而Backend setting配置时又需要Health probe的配置，等等。所以在分析依赖关系后按照如下顺序配置可以在一定程度上避免反复配置, 整体关系如图所示：
+
 <img src="https://github.com/user-attachments/assets/f79b751d-7684-4353-8c45-606dfccb7a2c" height="600">
 
 1. Backend pool:
     A backend pool is a collection of resources to which your application gateway can send traffic. A backend pool can contain virtual machines, virtual machines scale sets, IP addresses, domain names, or an App Service. 这里配置的是APIM的custom domain。
+
 ![image](https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f)
 
-1. Health probes:
+2. Health probes:
    Like all load balancers, there are health probes configured and monitoring backends' health status, and route traffic only to those that are healthy. Here need to create health probes, and save without verifying, as no backend settings being configured yet.
-   On the 'Path', service like APIM has default health check endpoint as '/status-0123456789abcdef', other services like [App Service](https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check?tabs=python) or VMs, they can have custom health probe configured. <img src="https://github.com/user-attachments/assets/1acf904c-068e-4bf5-b8ae-eefb27acd0d0" height="600">
+   On the 'Path', service like APIM has default health check endpoint as '/status-0123456789abcdef', other services like [App Service](https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check?tabs=python) or VMs, they can have custom health probe configured.
+ 
+   <img src="https://github.com/user-attachments/assets/1acf904c-068e-4bf5-b8ae-eefb27acd0d0" height="600">
 
-1. Backend settings:
-    Configures backend protocol (http/https), port, cookie, connection draining, timeout, and probe association. Once here is linked to a probe created in above, the probe page will also show the link to this backend settings, it's both direction showing.
-   
-1. Listener TLS certificates
-1. Listener
-1. Rules
-1. Rewrite
+3. Backend settings:
+    Configures backend protocol (http/https), port, cookie, connection draining, timeout, and probe association. Once here is linked to a probe created in above, the probe page will also show the link to this backend settings.
 
+    <img src="https://github.com/user-attachments/assets/b2768e1e-34d1-4799-9c4b-940bb54cad61" height="600">
+
+4. Listener TLS certificates
+    This is at the second tab in "Listener" setting, a TLS certificate can support many listeners' configuration. The certificate can either be uploaded or stores in a Key Vault that Application Gateway's identity have access to, the company is using a custom managed identity. The certificate's alternative names should cover all the domain names at the backend (added in backend pool) as well as all the domain names used in Listener (calling it frontend).
+
+    <img src="https://github.com/user-attachments/assets/624f7e55-57a5-4e8f-b28e-d50674b315da" height="400">
+
+5. Listener
+6. Rules
+7. Rewrite
+
+Others: make sure all private DNS names are registered in azure private DNS zones and added either A records or CNAMEs, otherwise, the probe may complain DNS unable to resolve.
