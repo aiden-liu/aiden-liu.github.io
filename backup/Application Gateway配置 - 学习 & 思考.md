@@ -24,7 +24,12 @@ Azure Portal端的配置包括：
 ![image](https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f)
 
 1. Health probes:
+   Like all load balancers, there are health probes configured and monitoring backends' health status, and route traffic only to those that are healthy. Here need to create health probes, and save without verifying, as no backend settings being configured yet.
+   On the 'Path', service like APIM has default health check endpoint as '/status-0123456789abcdef', other services like [App Service](https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check?tabs=python) or VMs, they can have custom health probe configured. <img src="https://github.com/user-attachments/assets/1acf904c-068e-4bf5-b8ae-eefb27acd0d0" height="600">
+
 1. Backend settings:
+    
+   
 1. Listener TLS certificates
 1. Listener
 1. Rules

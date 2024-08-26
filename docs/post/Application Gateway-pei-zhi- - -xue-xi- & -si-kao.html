@@ -98,7 +98,9 @@ A backend pool is a collection of resources to which your application gateway ca
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f"><img src="https://github.com/user-attachments/assets/aad451e3-910e-47a8-8e3f-cbeb8349710f" alt="image" style="max-width: 100%;"></a></p>
 </li>
 <li>
-<p>Health probes:</p>
+<p>Health probes:<br>
+Like all load balancers, there are health probes configured and monitoring backends' health status, and route traffic only to those that are healthy. Here need to create health probes, and save without verifying, as no backend settings being configured yet.<br>
+On the 'Path', service like APIM has default health check endpoint as '/status-0123456789abcdef', other services like <a href="https://learn.microsoft.com/en-us/azure/app-service/monitor-instances-health-check?tabs=python" rel="nofollow">App Service</a> or VMs, they can have custom health probe configured. <a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/1acf904c-068e-4bf5-b8ae-eefb27acd0d0"><img src="https://github.com/user-attachments/assets/1acf904c-068e-4bf5-b8ae-eefb27acd0d0" height="600" style="max-width: 100%;"></a></p>
 </li>
 <li>
 <p>Backend settings:</p>
