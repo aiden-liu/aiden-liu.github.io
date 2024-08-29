@@ -128,14 +128,14 @@ Cert：选择在上一步配置的TLS Certificate</li>
 </li>
 <li>
 <p>Rules<br>
-这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个监听配哪个后端。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址<code class="notranslate">/</code>转发，就是<code class="notranslate">api-uat.dataops.us.kg/log</code>中的<code class="notranslate">/log</code>部分，这就是Application Gateway被认为是OSI Layer 7的负载均衡。关于OSI Layer 7，参见我的另一篇博文“<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/7" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/7/hovercard">OSI层级是啥，咋弄，为啥</a>”。</p>
+这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个萝卜哪个坑。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址<code class="notranslate">/</code>转发，就是<code class="notranslate">api-uat.dataops.us.kg/log</code>中的<code class="notranslate">/log</code>部分，这就是Application Gateway被认为是OSI Layer 7的负载均衡。关于OSI Layer 7，参见我的另一篇博文“<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/7" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/7/hovercard">OSI层级是啥，咋弄，为啥</a>”。</p>
 </li>
 <li>
 <p>Rewrite<br>
-这也是个十分灵活的配置，我认为Rewrite和Rules是整个Application Gateway的灵魂所在。</p>
+这也是个十分灵活的配置，我认为Rewrite连同Rules构成了整个Application Gateway的灵魂所在。这里rewrite是在rule基础之上定义的，可以看成进一步的routing，但同时也能起到过滤敏感信息等作用。具体咋个意思呢，就是重写请求和响应，包括地址，header，查询参数等。比如针对preflight，可以在这里重写response headers<code class="notranslate">Access-Control-Allow-Origin</code>等。</p>
 </li>
 </ol>
-<p>Others: make sure all private DNS names are registered in azure private DNS zones and added either A records or CNAMEs, otherwise, the probe may complain DNS unable to resolve.</p></div>
+<p>另外: 确保所有的 private DNS names都在Azure Private DNS Zones中添加了，而且每个DNS Zone添加了对应的 A Records 或CNAMEs，否则在测试health probe过程中会报错DNS不识别。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
