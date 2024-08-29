@@ -58,3 +58,5 @@ Azure Portal端的配置包括：
     这也是个十分灵活的配置，我认为Rewrite连同Rules构成了整个Application Gateway的灵魂。这里rewrite是在rule基础之上定义的，可以看成进一步的routing，但同时也能起到过滤敏感信息等作用。具体咋个意思呢，就是重写请求和响应，包括地址，header，查询参数等。比如针对preflight，可以在这里重写response headers`Access-Control-Allow-Origin`等，还有如果返回header中有敏感信息，比如透露后端端口信息，可以在这里配置被删掉。
 
 另外: 确保所有的 private DNS names都在Azure Private DNS Zones中添加了，而且每个DNS Zone添加了对应的 A Records 或CNAMEs，否则在测试health probe过程中会报错DNS不识别。
+
+<!-- ##{"script":"<script src='https://blog.meekdai.com/Gmeek/plugins/lightbox.js'></script>"}## -->
