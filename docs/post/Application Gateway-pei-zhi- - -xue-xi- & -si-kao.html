@@ -10,9 +10,9 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及其他的引申思考。">
+<meta name="description" content="最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及记录一下由此的引申思考。">
 <meta property="og:title" content="Application Gateway配置 - 学习 & 思考">
-<meta property="og:description" content="最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及其他的引申思考。">
+<meta property="og:description" content="最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及记录一下由此的引申思考。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://aiden-liu.github.io/post/Application%20Gateway-pei-zhi-%20-%20-xue-xi-%20%26%20-si-kao.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/49363522?v=4">
@@ -73,10 +73,10 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><p>最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及其他的引申思考。</p>
-<h3>什么是Application Gateway</h3>
+<div class="markdown-body" id="postBody"><p>最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及记录一下由此的引申思考。</p>
+<h3>首先啥是Application Gateway</h3>
 <p>在<a href="https://learn.microsoft.com/en-us/azure/application-gateway/overview" rel="nofollow">官方文档</a>已经有很详尽的解释和介绍，大体上来说是个负载均衡的角色， 但是和传统意义上的负载均衡不同的是它是在应用层发挥作用的，可以按照规则对不同的URI地址进行路由。</p>
-<h3>怎么配置Application Gateway</h3>
+<h3>咋配置Application Gateway</h3>
 <p>由于这此的任务只是为新的backend（stv2 APIM）配置AppGW，许多原有的配置是不需要改动的，比如：</p>
 <ul>
 <li>Frondend IP configuration：已经配置了public和 private IPs，如果没有特别要求，后续新增配置可以复用现成的。</li>

@@ -1,9 +1,9 @@
-最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及其他的引申思考。
+最近，公司迁移Azure API Management到stv2，但仍然打算使用之前的Azure Application Gateway，所以借此机会学习一下这个服务，配置、使用场景以及记录一下由此的引申思考。
 
-### 什么是Application Gateway
+### 首先啥是Application Gateway
 在[官方文档](https://learn.microsoft.com/en-us/azure/application-gateway/overview)已经有很详尽的解释和介绍，大体上来说是个负载均衡的角色， 但是和传统意义上的负载均衡不同的是它是在应用层发挥作用的，可以按照规则对不同的URI地址进行路由。
 
-### 怎么配置Application Gateway
+### 咋配置Application Gateway
 由于这此的任务只是为新的backend（stv2 APIM）配置AppGW，许多原有的配置是不需要改动的，比如：
 
 - Frondend IP configuration：已经配置了public和 private IPs，如果没有特别要求，后续新增配置可以复用现成的。
