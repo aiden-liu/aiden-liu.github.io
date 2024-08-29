@@ -43,7 +43,16 @@ Azure Portal端的配置包括：
     <img src="https://github.com/user-attachments/assets/624f7e55-57a5-4e8f-b28e-d50674b315da" height="400">
 
 5. Listener
+    Types:
+    * Basic: 接受所有的请求并且转发给backend pools。
+    * Multi-site: 按照host header或host name转发给不同的backend pool，注意这里的host是监听的地址，监听的host name是`api-uat.dataops.us.kg`和`api-uat.dataops.org`，那么发送到监听任一地址的请求会被识别并且按照路由规则（在下一步配置）转发到后端。
+    Protocal:
+    * HTTP: 默认端口80，可配置
+    * HTTPS: 默认端口443，可配置
+    Cert：选择在上一步配置的TLS Certificate
 6. Rules
+    这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个监听配哪个后端。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址`/`转发，就是`api-uat.dataops.us.kg/log`中的`/log`部分，这就是Application Gateway被认为是OSI Layer 7的负载均衡。关于OSI Layer 7，参见我的另一篇博文“[OSI层级是啥，咋弄，为啥](https://github.com/aiden-liu/aiden-liu.github.io/issues/7)”。
 7. Rewrite
+    这也是个十分灵活的配置，我认为Rewrite和Rules是整个Application Gateway的灵魂所在。
 
 Others: make sure all private DNS names are registered in azure private DNS zones and added either A records or CNAMEs, otherwise, the probe may complain DNS unable to resolve.

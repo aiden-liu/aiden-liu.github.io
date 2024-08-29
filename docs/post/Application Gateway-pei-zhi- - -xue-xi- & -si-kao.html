@@ -115,13 +115,24 @@ This is at the second tab in "Listener" setting, a TLS certificate can support m
  <a target="_blank" rel="noopener noreferrer" href="https://github.com/user-attachments/assets/624f7e55-57a5-4e8f-b28e-d50674b315da"><img src="https://github.com/user-attachments/assets/624f7e55-57a5-4e8f-b28e-d50674b315da" height="400" style="max-width: 100%;"></a>
 </li>
 <li>
-<p>Listener</p>
+<p>Listener<br>
+Types:</p>
+<ul>
+<li>Basic: 接受所有的请求并且转发给backend pools。</li>
+<li>Multi-site: 按照host header或host name转发给不同的backend pool，注意这里的host是监听的地址，监听的host name是<code class="notranslate">api-uat.dataops.us.kg</code>和<code class="notranslate">api-uat.dataops.org</code>，那么发送到监听任一地址的请求会被识别并且按照路由规则（在下一步配置）转发到后端。<br>
+Protocal:</li>
+<li>HTTP: 默认端口80，可配置</li>
+<li>HTTPS: 默认端口443，可配置<br>
+Cert：选择在上一步配置的TLS Certificate</li>
+</ul>
 </li>
 <li>
-<p>Rules</p>
+<p>Rules<br>
+这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个监听配哪个后端。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址<code class="notranslate">/</code>转发，就是<code class="notranslate">api-uat.dataops.us.kg/log</code>中的<code class="notranslate">/log</code>部分，这就是Application Gateway被认为是OSI Layer 7的负载均衡。关于OSI Layer 7，参见我的另一篇博文“<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/7" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/7/hovercard">OSI层级是啥，咋弄，为啥</a>”。</p>
 </li>
 <li>
-<p>Rewrite</p>
+<p>Rewrite<br>
+这也是个十分灵活的配置，我认为Rewrite和Rules是整个Application Gateway的灵魂所在。</p>
 </li>
 </ol>
 <p>Others: make sure all private DNS names are registered in azure private DNS zones and added either A records or CNAMEs, otherwise, the probe may complain DNS unable to resolve.</p></div>
