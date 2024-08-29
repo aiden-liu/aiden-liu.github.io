@@ -119,12 +119,14 @@ This is at the second tab in "Listener" setting, a TLS certificate can support m
 Types:</p>
 <ul>
 <li>Basic: 接受所有的请求并且转发给backend pools。</li>
-<li>Multi-site: 按照host header或host name转发给不同的backend pool，注意这里的host是监听的地址，监听的host name是<code class="notranslate">api-uat.dataops.us.kg</code>和<code class="notranslate">api-uat.dataops.org</code>，那么发送到监听任一地址的请求会被识别并且按照路由规则（在下一步配置）转发到后端。<br>
-Protocal:</li>
-<li>HTTP: 默认端口80，可配置</li>
-<li>HTTPS: 默认端口443，可配置<br>
-Cert：选择在上一步配置的TLS Certificate</li>
+<li>Multi-site: 按照host header或host name转发给不同的backend pool，注意这里的host是监听的地址，监听的host name是<code class="notranslate">api-uat.dataops.us.kg</code>和<code class="notranslate">api-uat.dataops.org</code>，那么发送到监听任一地址的请求会被识别并且按照路由规则（在下一步配置）转发到后端。</li>
 </ul>
+<p>Protocal:</p>
+<ul>
+<li>HTTP: 默认端口80，可配置</li>
+<li>HTTPS: 默认端口443，可配置</li>
+</ul>
+<p>Cert：选择在上一步配置的TLS Certificate</p>
 </li>
 <li>
 <p>Rules<br>
