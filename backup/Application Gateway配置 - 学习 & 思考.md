@@ -53,7 +53,7 @@ Azure Portal端的配置包括：
     
     Cert：选择在上一步配置的TLS Certificate
 6. Rules
-    这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个萝卜哪个坑。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址`/`转发，就是`api-uat.dataops.us.kg/log`中的`/log`部分，这就是Application Gateway被认为是OSI Layer 7的负载均衡。关于OSI Layer 7，参见我的另一篇博文“[OSI层级是啥，咋弄，为啥](https://github.com/aiden-liu/aiden-liu.github.io/issues/7)”。
+    这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个萝卜哪个坑。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址`/`转发，就是`api-uat.dataops.us.kg/log`中的`/log`部分，这就是Application Gateway被认为是在OSI第7层上的负载均衡的原因。关于OSI Layer 7，参见我的另一篇博文“[OSI层级是啥，咋弄，为啥](https://github.com/aiden-liu/aiden-liu.github.io/issues/7)”。
 7. Rewrite
     这也是个十分灵活的配置，我认为Rewrite连同Rules构成了整个Application Gateway的灵魂所在。这里rewrite是在rule基础之上定义的，可以看成进一步的routing，但同时也能起到过滤敏感信息等作用。具体咋个意思呢，就是重写请求和响应，包括地址，header，查询参数等。比如针对preflight，可以在这里重写response headers`Access-Control-Allow-Origin`等。
 

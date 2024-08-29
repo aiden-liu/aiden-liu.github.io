@@ -130,7 +130,7 @@ Types:</p>
 </li>
 <li>
 <p>Rules<br>
-这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个萝卜哪个坑。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址<code class="notranslate">/</code>转发，就是<code class="notranslate">api-uat.dataops.us.kg/log</code>中的<code class="notranslate">/log</code>部分，这就是Application Gateway被认为是OSI Layer 7的负载均衡。关于OSI Layer 7，参见我的另一篇博文“<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/7" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/7/hovercard">OSI层级是啥，咋弄，为啥</a>”。</p>
+这里的rule就是路由规则，就是监听器收到请求了，咱得定义按照什么规则转发给后端，粗一点说就是哪个萝卜哪个坑。后端这里还包括backend pool（step 1）和backend setting（step 3）；其实这里还有别的玩法，比如可以重定向，由一个监听器转发给另一个监听器或者外部网站，还比如可以按照URL的地址<code class="notranslate">/</code>转发，就是<code class="notranslate">api-uat.dataops.us.kg/log</code>中的<code class="notranslate">/log</code>部分，这就是Application Gateway被认为是在OSI第7层上的负载均衡的原因。关于OSI Layer 7，参见我的另一篇博文“<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/7" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/7/hovercard">OSI层级是啥，咋弄，为啥</a>”。</p>
 </li>
 <li>
 <p>Rewrite<br>
