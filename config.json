@@ -2,5 +2,7 @@
     "title":"A DataOps Guy",
     "subTitle":"Blog space on data engineering, machine learning, platform engineering",
     "avatarUrl":"https://avatars.githubusercontent.com/u/49363522?v=4",
-    "GMEEK_VERSION":"last"
+    "GMEEK_VERSION":"last",
+    "allHead":"<script src='https://blog.meekdai.com/Gmeek/plugins/GmeekVercount.js'></script>",
+    "script":"<script src='https://blog.meekdai.com/Gmeek/plugins/GmeekTOC.js'></script>"
 }
