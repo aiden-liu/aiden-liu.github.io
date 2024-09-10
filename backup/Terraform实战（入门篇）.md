@@ -19,6 +19,7 @@
 * fmt
 * validate
 * plan
+* test
 * apply
 * destroy
 * console

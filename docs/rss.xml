@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>A DataOps Guy</title><link>https://aiden-liu.github.io</link><description>Blog space on data engineering, machine learning, platform engineering</description><copyright>A DataOps Guy</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/49363522?v=4</url><title>avatar</title><link>https://aiden-liu.github.io</link></image><lastBuildDate>Tue, 10 Sep 2024 04:17:08 +0000</lastBuildDate><managingEditor>A DataOps Guy</managingEditor><ttl>60</ttl><webMaster>A DataOps Guy</webMaster><item><title>Terraform实战（入门篇）</title><link>https://aiden-liu.github.io/post/Terraform-shi-zhan-%EF%BC%88-ru-men-pian-%EF%BC%89.html</link><description>###本地开发&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>A DataOps Guy</title><link>https://aiden-liu.github.io</link><description>Blog space on data engineering, machine learning, platform engineering</description><copyright>A DataOps Guy</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/49363522?v=4</url><title>avatar</title><link>https://aiden-liu.github.io</link></image><lastBuildDate>Tue, 10 Sep 2024 04:24:43 +0000</lastBuildDate><managingEditor>A DataOps Guy</managingEditor><ttl>60</ttl><webMaster>A DataOps Guy</webMaster><item><title>Terraform实战（入门篇）</title><link>https://aiden-liu.github.io/post/Terraform-shi-zhan-%EF%BC%88-ru-men-pian-%EF%BC%89.html</link><description>###本地开发&#13;
 1. terraform components&#13;
 * terraform providers&#13;
 * azure providers&#13;
@@ -20,6 +20,7 @@
 * fmt&#13;
 * validate&#13;
 * plan&#13;
+* test&#13;
 * apply&#13;
 * destroy&#13;
 * console&#13;
