@@ -98,14 +98,14 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>Official note:<br>
 It's possible to define Custom Domains both within <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management" rel="nofollow">the azurerm_api_management resource</a> via the hostname_configuration block and by using <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_custom_domain" rel="nofollow">the azurerm_api_management_custom_domain resource</a>. However it's not possible to use both methods to manage Custom Domains within an API Management Service, since there'll be conflicts.</p>
 </blockquote>
-<p>这里没有明确说明的是：在同一个resource block创建custom domain只能使用CMI，如果不想用CMI，那么就得分开创建。因为在同一个资源中，部署成功的前提是能用某种身份获取在key vault中的cert以关联custom domain，假使计划用SMI，在创建APIM时SMI还没有存在，还不能用来访问key vault，因此没法获取cert，因此资源整体部署不成功。形成了死锁，所以要分成两个block部署。</p>
+<p>这里没有明确说明的是：在同一个resource block创建custom domain只能使用CMI，如果不想用CMI，那么就得分开创建。因为在同一个资源中，部署成功的前提是能用某种身份获取在key vault中的cert以关联custom domain，假使计划用SMI，在创建APIM时SMI还没有存在，还不能用来访问key vault，因此没法获取cert，因此资源整体部署不成功。形成了依赖死锁，所以要分成两个block部署。</p>
 <p>第6点中的subnet不能delegate是硬性要求，这点<a href="https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#prerequisites" rel="nofollow">官方文档</a>中也有提及：</p>
 <blockquote>
 <p>A virtual network and subnet in the same region and subscription as your API Management instance.<br>
 The subnet used to connect to the API Management instance may contain other Azure resource types.<br>
 The subnet shouldn't have any delegations enabled. The Delegate subnet to a service setting for the subnet should be set to None.</p>
 </blockquote>
-<p>另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见<a href="https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance" rel="nofollow">官方文档</a>。</p>
+<p>另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见<a href="https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance" rel="nofollow">官方文档</a>，这点挺容易忽略，算是第二个坑。</p>
 <p>第8点中配置diagnostic setting到log analytics workspace比较直接，关于Log Analytics Workspace的部署参见我的另一篇文章<a href="https://blog.dataops.us.kg/post/Log%20Analytics%20Workspace%EF%BC%88-bu-shu-pian-%EF%BC%89.html" rel="nofollow">Log Analytics Workspace（部署篇）</a>，其中有专门的讲解network isolation的实现和注意事项。</p>
 <p>第9点要求配置APIM policy，这里不得不提到APIM中API的四层policy，分别是：</p>
 <ol>

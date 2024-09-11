@@ -22,14 +22,14 @@
 > Official note: 
 It's possible to define Custom Domains both within [the azurerm_api_management resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management) via the hostname_configuration block and by using [the azurerm_api_management_custom_domain resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_custom_domain). However it's not possible to use both methods to manage Custom Domains within an API Management Service, since there'll be conflicts.
 
-这里没有明确说明的是：在同一个resource block创建custom domain只能使用CMI，如果不想用CMI，那么就得分开创建。因为在同一个资源中，部署成功的前提是能用某种身份获取在key vault中的cert以关联custom domain，假使计划用SMI，在创建APIM时SMI还没有存在，还不能用来访问key vault，因此没法获取cert，因此资源整体部署不成功。形成了死锁，所以要分成两个block部署。
+这里没有明确说明的是：在同一个resource block创建custom domain只能使用CMI，如果不想用CMI，那么就得分开创建。因为在同一个资源中，部署成功的前提是能用某种身份获取在key vault中的cert以关联custom domain，假使计划用SMI，在创建APIM时SMI还没有存在，还不能用来访问key vault，因此没法获取cert，因此资源整体部署不成功。形成了依赖死锁，所以要分成两个block部署。
 
 第6点中的subnet不能delegate是硬性要求，这点[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#prerequisites)中也有提及：
 > A virtual network and subnet in the same region and subscription as your API Management instance.
 The subnet used to connect to the API Management instance may contain other Azure resource types.
 The subnet shouldn't have any delegations enabled. The Delegate subnet to a service setting for the subnet should be set to None.
 
-另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance)。 
+另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance)，这点挺容易忽略，算是第二个坑。
 
 第8点中配置diagnostic setting到log analytics workspace比较直接，关于Log Analytics Workspace的部署参见我的另一篇文章[Log Analytics Workspace（部署篇）](https://blog.dataops.us.kg/post/Log%20Analytics%20Workspace%EF%BC%88-bu-shu-pian-%EF%BC%89.html)，其中有专门的讲解network isolation的实现和注意事项。
 
