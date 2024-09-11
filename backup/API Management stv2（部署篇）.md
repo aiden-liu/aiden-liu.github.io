@@ -12,11 +12,11 @@
 9. 为APIM配置全局policy，使用指定CORs rule。
 10. 其他：包括代码仓库管理，编码规范，文档和测试等。
 
-以上要求的1至5点，除了新建cert之外，都是由landingzone实现的，不在这里展开，详细可参见我的另一篇帖子[Terraform实战（进阶篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/13)。这里着重说一下6到9的实现。
+以上要求的1至5点，除了新建cert之外，都是由landingzone实现的，不在这里展开，详细可参见我的另一篇帖子[Terraform实战（进阶篇）](https://blog.dataops.us.kg/post/Terraform-shi-zhan-%EF%BC%88-jin-jie-pian-%EF%BC%89.html)。这里着重说一下6到9的实现。
 
 关于tier的说明可以参看[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-capacity?tabs=v2-tiers)，注意的几点就是：
 1. 多点部署需要Premium
-2. 不同tier的备份和还原是不互通的，Developer的备份只能还原到Developer的实例上。关于备份和还原，可以看我的另一篇帖子[API Management stv2（迁移篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/8)
+2. 不同tier的备份和还原是不互通的，Developer的备份只能还原到Developer的实例上。关于备份和还原，可以看我的另一篇帖子[API Management stv2（迁移篇）](https://blog.dataops.us.kg/post/API%20Management%20stv2%EF%BC%88-qian-yi-pian-%EF%BC%89.html)
 
 系统管理身份（System Managed Identity）其生命周期和对应的资源绑定，另一种管理身份是客户管理身份（Custom Managed Identity），其生命周期独立于资源，可以同时被多个资源使用，通常用在某一资源不支持SMI的情况。这里遇到第一个坑：
 > Official note: 
@@ -31,7 +31,7 @@ The subnet shouldn't have any delegations enabled. The Delegate subnet to a serv
 
 另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance)。 
 
-第8点中配置diagnostic setting到log analytics workspace比较直接，关于Log Analytics Workspace的部署参见我的另一篇文章[Log Analytics Workspace（部署篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/3)，其中有专门的讲解network isolation的实现和注意事项。
+第8点中配置diagnostic setting到log analytics workspace比较直接，关于Log Analytics Workspace的部署参见我的另一篇文章[Log Analytics Workspace（部署篇）](https://blog.dataops.us.kg/post/Log%20Analytics%20Workspace%EF%BC%88-bu-shu-pian-%EF%BC%89.html)，其中有专门的讲解network isolation的实现和注意事项。
 
 第9点要求配置APIM policy，这里不得不提到APIM中API的四层policy，分别是：
 1. API Management全局policy，影响所有部署在该实例下的API；
@@ -40,4 +40,4 @@ The subnet shouldn't have any delegations enabled. The Delegate subnet to a serv
 4. API operation policy，影响某一API里某一个operation，属于最底层的policy；
 这么多层policy怎么减少代码冗余，APIM中可以定义policy块，在不同层可重复引用。
 
-第10点关于代码仓库管理，编码规范，文档和测试等，可以参考我另一篇文章[Terraform实战（入门篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/12)
+第10点关于代码仓库管理，编码规范，文档和测试等，可以参考我另一篇文章[Terraform实战（入门篇）](https://blog.dataops.us.kg/post/Terraform-shi-zhan-%EF%BC%88-jin-jie-pian-%EF%BC%89.html)
