@@ -10,9 +10,9 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="">
+<meta name="description" content="部署一个新的Azure API Management（APIM）实例是个挺磨人的活儿，主要原因是迭代费劲，不管在网页端（Azure portal）部署还是通过IaC（Infrastructure as Code）部署，单次部署时长通常不少于30分钟，如果反复修改调整，差不多一天出去了。">
 <meta property="og:title" content="API Management stv2（部署篇）">
-<meta property="og:description" content="">
+<meta property="og:description" content="部署一个新的Azure API Management（APIM）实例是个挺磨人的活儿，主要原因是迭代费劲，不管在网页端（Azure portal）部署还是通过IaC（Infrastructure as Code）部署，单次部署时长通常不少于30分钟，如果反复修改调整，差不多一天出去了。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://aiden-liu.github.io/post/API%20Management%20stv2%EF%BC%88-bu-shu-pian-%EF%BC%89.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/49363522?v=4">
@@ -73,7 +73,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"></div>
+<div class="markdown-body" id="postBody"><p>部署一个新的Azure API Management（APIM）实例是个挺磨人的活儿，主要原因是迭代费劲，不管在网页端（Azure portal）部署还是通过IaC（Infrastructure as Code）部署，单次部署时长通常不少于30分钟，如果反复修改调整，差不多一天出去了。所以本文列出通过IaC常规的部署步骤，以及一些<a href="https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2" rel="nofollow">官网</a>没有提及的坑。</p>
+<p>这里要交代一下架构，以方便读者理解为什么这么做，并按照自己的情况调整：<br>
+0. 以下所有部署均使用Terraform完成，资源命名规则另见文档；</p>
+<ol>
+<li>为每个环境新建subscription；</li>
+<li>在每个subscription中新建一个virtual network, 且包含默认subnet，其地址空间为/26，包含指定规则的route table；</li>
+<li>新建的Vnet peer到已有的Hub Vnet上。</li>
+<li>新建key vault，并添加cert， cert名称应涵盖所有的私有域名以及APIM的builtin域名。</li>
+<li>新建APIM，tier为Developer， 单点，系统管理身份，配置internal模式，使用步骤2中的vnet，新建subnet，其地址空间为/26，包含指定规则的route table；</li>
+<li>为APIM配置私有域名，为每个域名配置A record到对应的Private DNS Zone中，域名所需cert来自步骤4，使用系统管理身份访问。</li>
+<li>为APIM配置monitor，使用diagnostic setting，分别发送到指定的log analytics workspace和event hub中。</li>
+<li>为APIM配置全局policy，使用指定CORs rule。</li>
+<li>其他：包括代码仓库管理，编码规范，文档和测试等。</li>
+</ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
