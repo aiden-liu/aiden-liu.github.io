@@ -93,7 +93,29 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>多点部署需要Premium</li>
 <li>不同tier的备份和还原是不互通的，Developer的备份只能还原到Developer的实例上。关于备份和还原，可以看我的另一篇帖子<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/8" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/8/hovercard">API Management stv2（迁移篇）</a></li>
 </ol>
-<p>系统管理身份（System Managed Identity）其生命周期和对应的资源绑定，另一种管理身份是客户管理身份（Custom Managed Identity），其生命周期独立于资源，可以同时被多个资源使用，通常用在某一资源不支持SMI的情况。这里遇到第一个坑：</p></div>
+<p>系统管理身份（System Managed Identity）其生命周期和对应的资源绑定，另一种管理身份是客户管理身份（Custom Managed Identity），其生命周期独立于资源，可以同时被多个资源使用，通常用在某一资源不支持SMI的情况。这里遇到第一个坑：</p>
+<blockquote>
+<p>Official note:<br>
+It's possible to define Custom Domains both within <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management" rel="nofollow">the azurerm_api_management resource</a> via the hostname_configuration block and by using <a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_custom_domain" rel="nofollow">the azurerm_api_management_custom_domain resource</a>. However it's not possible to use both methods to manage Custom Domains within an API Management Service, since there'll be conflicts.</p>
+</blockquote>
+<p>这里没有明确说明的是：在同一个resource block创建custom domain只能使用CMI，如果不想用CMI，那么就得分开创建。因为在同一个资源中，部署成功的前提是能用某种身份获取在key vault中的cert以关联custom domain，假使计划用SMI，在创建APIM时SMI还没有存在，还不能用来访问key vault，因此没法获取cert，因此资源整体部署不成功。形成了死锁，所以要分成两个block部署。</p>
+<p>第6点中的subnet不能delegate是硬性要求，这点<a href="https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#prerequisites" rel="nofollow">官方文档</a>中也有提及：</p>
+<blockquote>
+<p>A virtual network and subnet in the same region and subscription as your API Management instance.<br>
+The subnet used to connect to the API Management instance may contain other Azure resource types.<br>
+The subnet shouldn't have any delegations enabled. The Delegate subnet to a service setting for the subnet should be set to None.</p>
+</blockquote>
+<p>另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见<a href="https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance" rel="nofollow">官方文档</a>。</p>
+<p>第8点中配置diagnostic setting到log analytics workspace比较直接，关于Log Analytics Workspace的部署参见我的另一篇文章<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/3" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/3/hovercard">Log Analytics Workspace（部署篇）</a>，其中有专门的讲解network isolation的实现和注意事项。</p>
+<p>第9点要求配置APIM policy，这里不得不提到APIM中API的四层policy，分别是：</p>
+<ol>
+<li>API Management全局policy，影响所有部署在该实例下的API；</li>
+<li>APIM产品policy，影响所有部署在该产品下的API，一个产品可以包含0到多个API；</li>
+<li>API policy，影响该API下所有的operation；</li>
+<li>API operation policy，影响某一API里某一个operation，属于最底层的policy；<br>
+这么多层policy怎么减少代码冗余，APIM中可以定义policy块，在不同层可重复引用。</li>
+</ol>
+<p>第10点关于代码仓库管理，编码规范，文档和测试等，可以参考我另一篇文章<a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/12" data-hovercard-type="issue" data-hovercard-url="/aiden-liu/aiden-liu.github.io/issues/12/hovercard">Terraform实战（入门篇）</a></p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>

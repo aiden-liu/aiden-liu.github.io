@@ -19,3 +19,25 @@
 2. 不同tier的备份和还原是不互通的，Developer的备份只能还原到Developer的实例上。关于备份和还原，可以看我的另一篇帖子[API Management stv2（迁移篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/8)
 
 系统管理身份（System Managed Identity）其生命周期和对应的资源绑定，另一种管理身份是客户管理身份（Custom Managed Identity），其生命周期独立于资源，可以同时被多个资源使用，通常用在某一资源不支持SMI的情况。这里遇到第一个坑：
+> Official note: 
+It's possible to define Custom Domains both within [the azurerm_api_management resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management) via the hostname_configuration block and by using [the azurerm_api_management_custom_domain resource](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/api_management_custom_domain). However it's not possible to use both methods to manage Custom Domains within an API Management Service, since there'll be conflicts.
+
+这里没有明确说明的是：在同一个resource block创建custom domain只能使用CMI，如果不想用CMI，那么就得分开创建。因为在同一个资源中，部署成功的前提是能用某种身份获取在key vault中的cert以关联custom domain，假使计划用SMI，在创建APIM时SMI还没有存在，还不能用来访问key vault，因此没法获取cert，因此资源整体部署不成功。形成了死锁，所以要分成两个block部署。
+
+第6点中的subnet不能delegate是硬性要求，这点[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#prerequisites)中也有提及：
+> A virtual network and subnet in the same region and subscription as your API Management instance.
+The subnet used to connect to the API Management instance may contain other Azure resource types.
+The subnet shouldn't have any delegations enabled. The Delegate subnet to a service setting for the subnet should be set to None.
+
+另外，subnet的service endpoints需要至少包括：[ "Microsoft.Storage", "Microsoft.KeyVault", "Microsoft.Eventhub", "Microsoft.Sql" ]，详见[官方文档](https://learn.microsoft.com/en-us/azure/api-management/api-management-using-with-internal-vnet?tabs=stv2#force-tunnel-traffic-to-on-premises-firewall-using-expressroute-or-network-virtual-appliance)。 
+
+第8点中配置diagnostic setting到log analytics workspace比较直接，关于Log Analytics Workspace的部署参见我的另一篇文章[Log Analytics Workspace（部署篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/3)，其中有专门的讲解network isolation的实现和注意事项。
+
+第9点要求配置APIM policy，这里不得不提到APIM中API的四层policy，分别是：
+1. API Management全局policy，影响所有部署在该实例下的API；
+2. APIM产品policy，影响所有部署在该产品下的API，一个产品可以包含0到多个API；
+3. API policy，影响该API下所有的operation；
+4. API operation policy，影响某一API里某一个operation，属于最底层的policy；
+这么多层policy怎么减少代码冗余，APIM中可以定义policy块，在不同层可重复引用。
+
+第10点关于代码仓库管理，编码规范，文档和测试等，可以参考我另一篇文章[Terraform实战（入门篇）](https://github.com/aiden-liu/aiden-liu.github.io/issues/12)
