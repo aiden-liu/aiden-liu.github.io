@@ -7,6 +7,8 @@
 3. Engineering workspace （data landing, data pipeline, data models, data apis, data monitor）
 4. Batch / Streaming
 
+<img src="https://github.com/user-attachments/assets/8e7d49f3-f26d-4c62-9860-b0c5bf57be90" height="200"/>
+
 ### 为什么要搞DataOps？
 1. For leaders: Data governance - standardisation, federation, meshing
 2. For developers & engineers: collaboration, automation, maintenance

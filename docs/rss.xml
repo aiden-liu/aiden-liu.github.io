@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>A DataOps Guy</title><link>https://aiden-liu.github.io</link><description>Blog space on data engineering, machine learning, platform engineering</description><copyright>A DataOps Guy</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/49363522?v=4</url><title>avatar</title><link>https://aiden-liu.github.io</link></image><lastBuildDate>Mon, 24 Mar 2025 12:07:05 +0000</lastBuildDate><managingEditor>A DataOps Guy</managingEditor><ttl>60</ttl><webMaster>A DataOps Guy</webMaster><item><title>Azure Databricks实践之配置Unity Catalog</title><link>https://aiden-liu.github.io/post/Azure%20Databricks-shi-jian-zhi-pei-zhi-Unity%20Catalog.html</link><description>### 啥是Unity Catalog
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>A DataOps Guy</title><link>https://aiden-liu.github.io</link><description>Blog space on data engineering, machine learning, platform engineering</description><copyright>A DataOps Guy</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/49363522?v=4</url><title>avatar</title><link>https://aiden-liu.github.io</link></image><lastBuildDate>Mon, 24 Mar 2025 22:39:48 +0000</lastBuildDate><managingEditor>A DataOps Guy</managingEditor><ttl>60</ttl><webMaster>A DataOps Guy</webMaster><item><title>Azure Databricks实践之配置Unity Catalog</title><link>https://aiden-liu.github.io/post/Azure%20Databricks-shi-jian-zhi-pei-zhi-Unity%20Catalog.html</link><description>### 啥是Unity Catalog
 
 ### 怎么使用Unity Catalog
 
@@ -44,6 +44,8 @@
 2. Developer workspace （Local develop environment， debug tools，commit convention， code scan，vulnerability check，pr review，compliance check，deploy，test，document（versioning，badging））
 3. Engineering workspace （data landing, data pipeline, data models, data apis, data monitor）
 4. Batch / Streaming
+
+&lt;img src='https://github.com/user-attachments/assets/8e7d49f3-f26d-4c62-9860-b0c5bf57be90' height='200'/&gt;
 
 ### 为什么要搞DataOps？
 1. For leaders: Data governance - standardisation, federation, meshing
