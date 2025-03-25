@@ -19,3 +19,5 @@ caveats:
 3. Have someone to sell up
 4. Rome isn't build in one day, be patient
 5. Getting early feedback is the key, form your alpha group of people and start a pilot project, test and iterate.
+6. Agile - stakeholder (Product Owner, Project Manager, SME) continuous engagement.
+7. DevOps practise
