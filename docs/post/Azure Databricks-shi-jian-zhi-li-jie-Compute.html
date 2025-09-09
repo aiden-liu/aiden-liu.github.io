@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    <script src='https://blog.meekdai.com/Gmeek/plugins/GmeekVercount.js'></script>
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/49363522?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="### 为什么要深入理解Azure Databricks的Compute
+
+起因是发现pyspark代码在有的all purpose compute上就能跑成功，有的就报一些莫名其妙的错误，花了很多时间troubleshoot，感觉就像跳进兔子洞，却没有什么实质进展。">
+<meta property="og:title" content="Azure Databricks实践之理解Compute">
+<meta property="og:description" content="### 为什么要深入理解Azure Databricks的Compute
+
+起因是发现pyspark代码在有的all purpose compute上就能跑成功，有的就报一些莫名其妙的错误，花了很多时间troubleshoot，感觉就像跳进兔子洞，却没有什么实质进展。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://aiden-liu.github.io/post/Azure%20Databricks-shi-jian-zhi-li-jie-Compute.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/49363522?v=4">
+<title>Azure Databricks实践之理解Compute</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Azure Databricks实践之理解Compute</h1>
+<div class="title-right">
+    <a href="https://aiden-liu.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/aiden-liu/aiden-liu.github.io/issues/17" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h3>为什么要深入理解Azure Databricks的Compute</h3>
+<p>起因是发现pyspark代码在有的all purpose compute上就能跑成功，有的就报一些莫名其妙的错误，花了很多时间troubleshoot，感觉就像跳进兔子洞，却没有什么实质进展。所以与其被动的troubleshoot，不如趁此机会仔细了解下Azure Databricks的compute是怎么回事。</p>
+<p>这种情况相信很多做数据工程的同学都遇到过：同样的代码，在不同的计算集群上表现不一致。有时候是库版本冲突，有时候是配置问题，有时候是资源不够，但往往找不到根本原因。</p>
+<h3>啥是Azure Databricks Compute</h3>
+<p>Azure Databricks Compute本质上就是一个托管的Apache Spark集群。但它不是简单的Spark集群，而是经过优化的、与Azure深度集成的计算环境。</p>
+<p>主要有以下几种类型：</p>
+<p><strong>All-Purpose Clusters (通用集群)</strong></p>
+<ul>
+<li>交互式开发用的集群</li>
+<li>可以运行notebooks、ad-hoc查询</li>
+<li>支持多用户同时使用</li>
+<li>可以手动启动和停止</li>
+<li>适合数据探索和开发调试</li>
+</ul>
+<p><strong>Job Clusters (作业集群)</strong></p>
+<ul>
+<li>专门运行scheduled jobs的集群</li>
+<li>作业运行完自动终止，节省成本</li>
+<li>每个job可以有独立的配置</li>
+<li>适合生产环境的数据pipeline</li>
+</ul>
+<p><strong>SQL Warehouses (SQL仓库)</strong></p>
+<ul>
+<li>专门用于SQL查询和BI工具</li>
+<li>基于Photon引擎，查询性能更好</li>
+<li>支持serverless模式</li>
+<li>适合数据分析师使用</li>
+</ul>
+<h3>Databricks Runtime是个啥</h3>
+<p>这里必须要理解一个核心概念：Databricks Runtime (DBR)。这是Databricks在开源Spark基础上的优化版本，包含了：</p>
+<ul>
+<li>优化的Spark引擎</li>
+<li>预装的常用库（pandas, scikit-learn, tensorflow等）</li>
+<li>Delta Lake支持</li>
+<li>MLflow集成</li>
+<li>安全和性能优化</li>
+</ul>
+<p>不同的Runtime版本包含不同的Spark版本和Python库版本，这就是为什么同样的代码在不同集群上表现不一致的关键原因。</p>
+<p><strong>常见的Runtime类型：</strong></p>
+<ul>
+<li>Standard Runtime：标准版，包含基础的数据工程库</li>
+<li>ML Runtime：机器学习版，预装了大量ML库</li>
+<li>Photon Runtime：包含Photon引擎，查询性能更好</li>
+<li>Light Runtime：轻量版，启动更快但功能较少</li>
+</ul>
+<h3>为啥同样的代码在不同Compute上表现不一致</h3>
+<p>这个问题的答案主要有以下几个方面：</p>
+<p><strong>1. Runtime版本不同</strong><br>
+不同的DBR版本包含不同的：</p>
+<ul>
+<li>Spark版本（2.4.x vs 3.x差别很大）</li>
+<li>Python版本（3.7 vs 3.8 vs 3.9）</li>
+<li>预装库的版本（pandas 1.x vs 2.x）</li>
+<li>JVM版本和配置</li>
+</ul>
+<p><strong>2. 集群配置不同</strong></p>
+<ul>
+<li>Worker节点数量和规格</li>
+<li>Driver节点规格</li>
+<li>内存配置</li>
+<li>Auto-scaling设置</li>
+</ul>
+<p><strong>3. 库依赖冲突</strong></p>
+<ul>
+<li>有些集群安装了自定义库</li>
+<li>不同Runtime预装库版本冲突</li>
+<li>pip install的库版本不一致</li>
+</ul>
+<p><strong>4. 环境变量和配置</strong></p>
+<ul>
+<li>Spark配置参数</li>
+<li>环境变量设置</li>
+<li>安全配置</li>
+</ul>
+<h3>怎么排查Compute相关的问题</h3>
+<p><strong>步骤1：确认Runtime版本</strong></p>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-c"># 在notebook中运行，查看当前环境信息</span>
+<span class="pl-en">print</span>(<span class="pl-s">f"Spark version: <span class="pl-s1"><span class="pl-kos">{</span><span class="pl-s1">spark</span>.<span class="pl-c1">version</span><span class="pl-kos">}</span></span>"</span>)
+<span class="pl-en">print</span>(<span class="pl-s">f"Python version: <span class="pl-s1"><span class="pl-kos">{</span><span class="pl-s1">spark</span>.<span class="pl-c1">sparkContext</span>.<span class="pl-c1">pythonVer</span><span class="pl-kos">}</span></span>"</span>)
+
+<span class="pl-c"># 查看DBR版本</span>
+<span class="pl-s1">dbutils</span>.<span class="pl-c1">notebook</span>.<span class="pl-c1">run</span>(<span class="pl-s">"/databricks/python/lib/python3.8/site-packages/databricks/version.py"</span>, <span class="pl-c1">0</span>)</pre></div>
+<p><strong>步骤2：检查预装库版本</strong></p>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-s1">pandas</span> <span class="pl-k">as</span> <span class="pl-s1">pd</span>
+<span class="pl-k">import</span> <span class="pl-s1">numpy</span> <span class="pl-k">as</span> <span class="pl-s1">np</span>
+<span class="pl-k">import</span> <span class="pl-s1">pyspark</span>
+
+<span class="pl-en">print</span>(<span class="pl-s">f"pandas: <span class="pl-s1"><span class="pl-kos">{</span><span class="pl-s1">pd</span>.<span class="pl-c1">__version__</span><span class="pl-kos">}</span></span>"</span>)
+<span class="pl-en">print</span>(<span class="pl-s">f"numpy: <span class="pl-s1"><span class="pl-kos">{</span><span class="pl-s1">np</span>.<span class="pl-c1">__version__</span><span class="pl-kos">}</span></span>"</span>)
+<span class="pl-en">print</span>(<span class="pl-s">f"pyspark: <span class="pl-s1"><span class="pl-kos">{</span><span class="pl-s1">pyspark</span>.<span class="pl-c1">__version__</span><span class="pl-kos">}</span></span>"</span>)</pre></div>
+<p><strong>步骤3：查看集群配置</strong><br>
+在集群详情页面检查：</p>
+<ul>
+<li>Runtime版本</li>
+<li>节点类型和数量</li>
+<li>Spark配置</li>
+<li>环境变量</li>
+<li>安装的库</li>
+</ul>
+<p><strong>步骤4：统一环境</strong></p>
+<ul>
+<li>使用相同的Runtime版本</li>
+<li>在init script中统一安装依赖库</li>
+<li>使用requirements.txt固定库版本</li>
+<li>配置相同的Spark参数</li>
+</ul>
+<h3>最佳实践：如何选择和配置Compute</h3>
+<p><strong>开发阶段：</strong></p>
+<ul>
+<li>使用All-Purpose Cluster</li>
+<li>选择较新的ML Runtime（预装库多）</li>
+<li>配置auto-termination，避免忘记关闭</li>
+<li>使用较小的集群规模（Single Node或2-3个worker）</li>
+</ul>
+<p><strong>生产阶段：</strong></p>
+<ul>
+<li>使用Job Cluster</li>
+<li>选择稳定的Runtime版本</li>
+<li>根据数据量配置合适的集群规模</li>
+<li>使用init script统一环境</li>
+<li>配置监控和alerting</li>
+</ul>
+<p><strong>性能优化：</strong></p>
+<ul>
+<li>对于SQL heavy的workload，考虑使用Photon Runtime</li>
+<li>合理配置executor memory和cores</li>
+<li>启用adaptive query execution</li>
+<li>使用Delta Lake进行存储优化</li>
+</ul>
+<h3>常见的Compute问题和解决方案</h3>
+<p><strong>问题1：OutOfMemoryError</strong></p>
+<pre class="notranslate"><code class="notranslate"># 解决方案：增加executor memory或减少partition大小
+spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
+spark.conf.set("spark.sql.adaptive.advisoryPartitionSizeInBytes", "128MB")
+</code></pre>
+<p><strong>问题2：库版本冲突</strong></p>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 使用init script统一安装特定版本的库</span>
+<span class="pl-c"><span class="pl-c">#!</span>/bin/bash</span>
+pip uninstall -y pandas
+pip install pandas==1.5.3</pre></div>
+<p><strong>问题3：Job运行缓慢</strong></p>
+<ul>
+<li>检查数据倾斜问题</li>
+<li>优化join策略</li>
+<li>使用broadcast join</li>
+<li>调整并行度</li>
+</ul>
+<p><strong>问题4：集群启动失败</strong></p>
+<ul>
+<li>检查网络配置</li>
+<li>验证权限设置</li>
+<li>查看driver logs</li>
+<li>确认配额限制</li>
+</ul>
+<h3>总结</h3>
+<p>理解Azure Databricks Compute的关键在于：</p>
+<ol>
+<li><strong>Runtime选择</strong>：根据使用场景选择合适的Runtime版本</li>
+<li><strong>环境一致性</strong>：开发和生产环境保持一致</li>
+<li><strong>配置标准化</strong>：使用init script和cluster policy标准化配置</li>
+<li><strong>监控调优</strong>：持续监控性能并根据需要调优</li>
+</ol>
+<p>通过深入理解这些概念，就能避免很多莫名其妙的问题，让数据工程工作变得更加可预测和可靠。</p>
+<p>记住：<strong>好的工程师不是不遇到问题，而是能够系统性地理解和解决问题。</strong></p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://aiden-liu.github.io">A DataOps Guy</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","aiden-liu/aiden-liu.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+<script src='https://blog.meekdai.com/Gmeek/plugins/GmeekTOC.js'></script>
+
+</html>
